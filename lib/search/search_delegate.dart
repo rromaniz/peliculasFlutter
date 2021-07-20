@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
 
+@override
+String get searchFieldLabel => 'Buscar';
+
 class MovieSearchDelegate extends SearchDelegate {
   @override
   List<Widget> buildActions(BuildContext context) {
-    // TODO: implement buildActions
-    throw UnimplementedError();
+    return [Text('BuildActions')];
   }
 
   @override
   Widget buildLeading(BuildContext context) {
-    // TODO: implement buildLeading
-    throw UnimplementedError();
+    return Text('BuildLeading');
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: implement buildResults
-    throw UnimplementedError();
+    return Text('BuildResults');
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    // TODO: implement buildSuggestions
-    throw UnimplementedError();
+    return Text('BuildSuggestions: $query');
   }
 }
