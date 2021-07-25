@@ -49,6 +49,8 @@ class MovieSearchDelegate extends SearchDelegate {
     if (query.isEmpty) {
       return _emptyContainer();
     }
+
+    print('http request');
     final moviesprovider = Provider.of<MoviesProvider>(context, listen: false);
     return FutureBuilder(
         future: moviesprovider.searchMovies(query),
