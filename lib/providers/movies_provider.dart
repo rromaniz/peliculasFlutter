@@ -1,13 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:movies/helpers/debouncer.dart';
 import 'package:movies/models/models.dart';
 import 'package:movies/models/search_response.dart';
 
-String _apikey = 'a7223a9370b830ebb4d41859e186a0e0';
-String _baseUrl = 'api.themoviedb.org';
-String _language = 'es-ES';
-
 class MoviesProvider extends ChangeNotifier {
+  String _apikey = 'a7223a9370b830ebb4d41859e186a0e0';
+  String _baseUrl = 'api.themoviedb.org';
+  String _language = 'es-ES';
+  int popularPage = 0;
+
+  final debouncer = Debouncer(duration: Duration(milliseconds: 500));
+
+  final StreamController<List<Movie>> _suggestionStreamContoller =
+      new StreamController.broadcast();
+  Stream<List<Movie>> get suggestionStream =>
+      this._suggestionStreamContoller.stream;
+
   MoviesProvider() {
     print('Moviesprovider inicializado');
     this.getOnDisplayMovies();
@@ -25,7 +36,6 @@ class MoviesProvider extends ChangeNotifier {
   List<Movie> onDisplayMovies = [];
   List<Movie> popularMovies = [];
   Map<int, List<Cast>> moviesCast = {};
-  int popularPage = 0;
 
   getOnDisplayMovies() async {
     final jsonData = await _getJsondata('3/movie/now_playing');
@@ -60,5 +70,18 @@ class MoviesProvider extends ChangeNotifier {
     final response = await http.get(url);
     final searchResponse = SearchResponse.fromJson(response.body);
     return searchResponse.results;
+  }
+
+  void getSuggestionsByQuery(String searchTerm) {
+    debouncer.value = "";
+    debouncer.onValue = (value) async {
+      final results = await this.searchMovies(value);
+      this._suggestionStreamContoller.add(results);
+    };
+    final timer = Timer.periodic(Duration(milliseconds: 300), (_) {
+      debouncer.value = searchTerm;
+    });
+
+    Future.delayed(Duration(milliseconds: 301)).then((_) => timer.cancel());
   }
 }
